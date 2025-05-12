@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Calcul KVB</title>
+</head>
+<body>
+    <h1>Calcul du Coefficient KVB</h1>
+
+    <form method="POST">
+        <label>Type de train :</label><br>
+        <input type="radio" id="ma100" name="type_train" value="MA100" required
+               {{ 'checked' if type_train == 'MA100' else '' }}>
+        <label for="ma100">MA100/90/80</label>
+
+        <input type="radio" id="me100" name="type_train" value="ME100" required
+               {{ 'checked' if type_train == 'ME100' else '' }}>
+        <label for="me100">ME100</label>
+        
+        <input type="radio" id="me120" name="type_train" value="ME120" required
+                {{ 'checked' if type_train == 'ME120' else '' }}>
+        <label for="me120">ME120</label><br><br>
+
+        <label for="masse_totale">Masse totale (t) :</label>
+        <input type="number" step="1" name="masse_totale" required
+               value="{{ masse_totale or '' }}"><br><br>
+
+        <label for="masse_freinee">Masse freinée (t) :</label>
+        <input type="number" step="1" name="masse_freinee" required
+               value="{{ masse_freinee or '' }}"><br><br>
+
+        <button type="submit">Calculer</button>
+    </form>
+
+    {% if result %}
+        <h2>Résultat</h2>
+        <p>Coefficient KVB : {{ result }}</p>
+    {% endif %}
+
+    {% if warning %}
+        <p style="color:red;">{{ warning }}</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('auth.profil') }}">Retour Profil</a></p>
+</body>
+</html>

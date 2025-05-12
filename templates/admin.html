@@ -1,0 +1,28 @@
+<h2>Utilisateurs</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Pseudo</th>
+        <th>Email</th>
+        <th>Admin</th>
+        <th>Image</th>
+    </tr>
+    {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>{{ 'Oui' if user[6] else 'Non' }}</td>
+            <td>
+                {% if user[5] %}
+                    <img src="{{ url_for('static', filename=user[5]) }}" width="50">
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+<a href="{{ url_for('auth.logout') }}" class="btn btn-danger">Déconnexion</a>
+
+

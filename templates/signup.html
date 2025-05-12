@@ -1,0 +1,10 @@
+<form method="POST" enctype="multipart/form-data">
+    <input name="Pseudo" placeholder="Pseudo" required><br>
+    <input name="Nom" placeholder="Nom"><br>
+    <input name="Email" type="email" placeholder="Email"><br>
+    <input name="password" type="password" placeholder="Mot de passe" required><br>
+    <input name="image" type="file"><br>
+    <button type="submit">S'inscrire</button>
+</form>
+<a href="{{ url_for('auth.login') }}">Déjà inscrit ?</a>
+

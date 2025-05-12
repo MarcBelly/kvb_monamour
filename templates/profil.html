@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord</title>
+</head>
+<body>
+    <h1>Bienvenue {{ session['pseudo'] }} sur votre tableau de bord</h1>
+    <p><a href="{{ url_for('index') }}">Accéder au calcul du coefficient KVB</a></p>
+    <p><a href="{{ url_for('auth.logout') }}">Déconnexion</a></p>
+</body>
+</html>
