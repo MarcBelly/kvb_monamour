@@ -5,8 +5,43 @@
     <title>Tableau de bord</title>
 </head>
 <body>
+    {% if user.image_path %}
+        <div>
+            <img src="{{ url_for('static', filename=user.image_path) }}" alt="Photo de profil" width="150" height="150" style="border-radius: 50%;">
+        </div>
+    {% else %}
+        <div>
+            <img src="/static/uploads/pic-no-pic.png" alt="photo de profil" width="150" height="150" style="border-radius: 50%;">
+        </div>
+    {% endif %}
+
     <h1>Bienvenue {{ session['pseudo'] }} sur votre tableau de bord</h1>
+
+    <h2>Statistiques personnelles :</h2>
+    <ul>
+        <li>Trains MA100 effectués : {{ count_ma100 }}</li>
+        <li>Trains ME100 effectués : {{ count_me100 }}</li>
+        <li>Trains ME120 effectués : {{ count_me120 }}</li>
+        <li><strong>Total de calculs :</strong> {{ total }}</li>
+    </ul>
+
+    <h3>Rang actuel : {{ rang }}</h3>
+
     <p><a href="{{ url_for('index') }}">Accéder au calcul du coefficient KVB</a></p>
+
+    <h2>Modifier ma photo de profil :</h2>
+
+    <form action="{{ url_for('auth.upload_profile_picture') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Mettre à jour la photo</button>
+    </form>
+    <hr> 
+
+    {% if session['is_admin'] %}
+    <a href="{{ url_for('admin') }}">Retour page Admin</a>
+    {% endif %}
+
+
     <p><a href="{{ url_for('auth.logout') }}">Déconnexion</a></p>
 </body>
 </html>

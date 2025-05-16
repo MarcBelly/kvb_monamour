@@ -75,7 +75,7 @@ def login():
             session["pseudo"] = user["Pseudo"]
             session["is_admin"] = user["is_admin"]
 
-            return redirect(url_for("auth.admin")) if user["is_admin"] else redirect(url_for("auth.profil"))
+            return redirect(url_for("admin")) if user["is_admin"] else redirect(url_for("auth.profil"))
         else:
             return render_template("login.html", error="Identifiants incorrects.")
 
@@ -86,17 +86,61 @@ def logout():
     session.clear()
     return redirect(url_for("auth.login"))
 
-@auth.route("/admin")
-def admin():
-    if not session.get("is_admin"):
-        return redirect(url_for("auth.login"))
-    
-    users = get_all_users()
-    return render_template("admin.html", users=users)
-
-@auth.route('/profil')
+@auth.route('/profil', methods=["GET", "POST"])
 def profil():
     if "user_id" not in session:
         return redirect(url_for('auth.login'))
-    return render_template("profil.html")
+    
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT image_path, count_ma100, count_me100, count_me120 FROM users WHERE id = %s", (session["user_id"],))
+    user = cursor.fetchone()
+    cursor.close()
+    db.close()
 
+    if not user:
+        return "Utilisateur non trouvé", 404
+
+    count_ma100 = user["count_ma100"] or 0
+    count_me100 = user["count_me100"] or 0
+    count_me120 = user["count_me120"] or 0
+    total = count_ma100 + count_me100 + count_me120
+
+    def calculer_rang(total):
+        if total >= 100:
+            return "Expert ferroviaire comme Alex Leduc"
+        elif total >= 50:
+            return "Déjà un ancien du rail"
+        elif total >= 20:
+            return "CDR confirmé"
+        else:
+            return "Apprenti conducteur comme le Dam's"
+
+    rang = calculer_rang(total)
+    image_path = user.get("image_path")
+
+    return render_template("profil.html", user=user, count_ma100=count_ma100, count_me100=count_me100, count_me120=count_me120, total=total, rang=rang, image_path=image_path)
+
+@auth.route("/upload_profile_picture", methods=["POST"])
+def upload_profile_picture():
+    if "user_id" not in session:
+        return redirect(url_for("auth.login"))
+
+    image = request.files.get("image")
+    if image and image.filename:
+        filename = secure_filename(image.filename)
+        image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+        image.save(image_path)
+
+        relative_path = f"uploads/{filename}"
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE users SET image_path = %s WHERE id = %s", (relative_path, session["user_id"]))
+        db.commit()
+        cursor.close()
+        db.close()
+
+        session["image_path"] = relative_path  # Pour stocker temporairement
+
+    return redirect(url_for("auth.profil"))

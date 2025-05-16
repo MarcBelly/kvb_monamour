@@ -21,12 +21,14 @@ def create_admin():
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (Pseudo, Nom, Email, password_hash, image_path,  is_admin))
         db.commit()
-        print("✅ Compte admin créé.")
+        print("Compte admin créé.")
     except Exception as e:
-        print("❌ Erreur :", e)
+        print("Erreur :", e)
         db.rollback()
 
     cursor.close()
     db.close()
 
 create_admin()
+
+
