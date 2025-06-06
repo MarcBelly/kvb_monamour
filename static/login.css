@@ -1,0 +1,115 @@
+@font-face {
+    font-family: 'Roboto-Black';
+    src: url(../static/font/static/Roboto-Black.ttf);
+}
+
+@font-face {
+    font-family: 'Roboto-Thin';
+    src: url(../static/font/static/Roboto-Thin.ttf);
+}
+
+body {
+    background-color: #F7F1EA;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre horizontalement */
+    justify-content: center; /* Centre verticalement (si tu veux centrer verticalement aussi) */
+    min-height: 100vh; /* Hauteur totale de la fenêtre */
+    margin: 0;
+    width: 100%;
+    font-family: 'Roboto-Black';
+}
+
+#title {
+    display: flex;
+    align-items: center;
+}
+
+#imagecouv {
+    width: 322px;
+    height: 469px;
+    top: 23px;
+    left: 25px;
+    margin-top: 15px;
+}
+
+.button1 {
+    background-color: #000000;
+    font-family: 'Roboto-thin';
+    color: #F7F1EA;
+    border: #000000;
+    border-style: solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    width: 322px;
+    height: 66px;
+    top: 696px;
+    left: 25px;
+}
+
+#form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0,05px; 
+    align-items: center;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #E4DED7;
+    border-radius: 20px;
+    background-color: #F7F1EA;
+    font-family: 'Roboto-Thin';
+    width: 322px;
+    height: 32px;
+}
+
+#button2 {
+    background-color: #F7F1EA;
+    font-family: 'Roboto-thin';
+    color: #E4DED7;
+    border: 1px solid #E4DED7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    width: 322px;
+    height: 32px;
+}
+
+#button2 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#button3 {
+    background-color: #F7F1EA;
+    font-family: 'Roboto-thin';
+    color: #E4DED7;
+    border: 1px solid #E4DED7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 100%;
+}
+
+#button3 a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
