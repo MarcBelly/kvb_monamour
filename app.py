@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, url_for
 from kvb_calcul import calculer_kvb_ma100, calculer_kvb_me100, calculer_kvb_me120
-from auth.routes import auth
+from auth.routes import auth, calculer_rang_et_progression
 from database.db_connection import mydb_connection, get_or_create_table
 import os
 
@@ -15,16 +15,6 @@ app.register_blueprint(auth, url_prefix='/auth')
 
 db = mydb_connection()
 get_or_create_table(db)
-
-def calculer_rang_app(total):
-    if total >= 100:
-        return "Expert ferroviaire comme Alex Leduc"
-    elif total >= 50:
-        return "Déjà un ancien du rail"
-    elif total >= 20:
-        return "CDR confirmé"
-    else:
-        return "Apprenti cdr comme le dam's"
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -80,24 +70,47 @@ def admin():
     users_raw = get_all_users()
 
     users = []
+        # définis d’abord tes seuils/noms (ou importe-les d’ailleurs)
+    seuils_ma100 = [100, 200, 300]
+    noms_ma100   = ["Apprenti du MA100", "Fonctionnaire du MA100", "Administrateur du MA100", "Expert du MA100"]
+    seuils_me100 = [100, 200, 300]
+    noms_me100   = ["Apprenti du ME100", "Grand bourgeois du ME100", "Patron du ME100", "Baron du ME100"]
+    seuils_me120 = [100, 200, 300]
+    noms_me120   = ["Hostile du ME120", "Mécanicien du ME120", "Conducteur du ME120", "Chef de meute ME120"]
+
     for user in users_raw:
-        # mapping: id, pseudo, nom, email, pw, img, is_admin, ma100, me100, me120
-        total = (user[7] or 0) + (user[8] or 0) + (user[9] or 0)
-        rang = calculer_rang_app(total)
-        print(f"User {user[1]} total: {total}, rang: {rang}")
+        c_ma100 = user[7] or 0
+        c_me100 = user[8] or 0
+        c_me120 = user[9] or 0
+
+        prog_ma100 = calculer_rang_et_progression(c_ma100, seuils_ma100, noms_ma100)
+        prog_me100 = calculer_rang_et_progression(c_me100, seuils_me100, noms_me100)
+        prog_me120 = calculer_rang_et_progression(c_me120, seuils_me120, noms_me120)
+
         users.append({
             "id": user[0],
             "pseudo": user[1],
             "email": user[3],
             "is_admin": user[6],
-            "count_ma100": user[7] or 0,
-            "count_me100": user[8] or 0,
-            "count_me120": user[9] or 0,
+            "count_ma100": c_ma100,
+            "count_me100": c_me100,
+            "count_me120": c_me120,
             "image_path": user[5],
-            "rang": rang
+            # Tu peux exposer le nom du rang et/ou le pourcentage
+            "rang_ma100": prog_ma100["nom"],
+            "pct_ma100": int((c_ma100 / prog_ma100["next"]) * 100),
+            "rang_me100": prog_me100["nom"],
+            "pct_me100": int((c_me100 / prog_me100["next"]) * 100),
+            "rang_me120": prog_me120["nom"],
+            "pct_me120": int((c_me120 / prog_me120["next"]) * 100),
         })
 
-    return render_template("admin.html", users=users)
+    return render_template("admin.html", users=users, progress_ma100=prog_ma100, progress_me100=prog_me100, progress_me120=prog_me120)
+
+@app.route('/info')
+def info():
+    return render_template('info.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,187 @@
+@font-face {
+    font-family: 'Roboto-Black';
+    src: url(../static/font/static/Roboto-Black.ttf);
+}
+
+@font-face {
+    font-family: 'Roboto-Thin';
+    src: url(../static/font/static/Roboto-Thin.ttf);
+}
+
+body {
+    background-color: #F7F1EA;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre horizontalement */
+    justify-content: center; /* Centre verticalement (si tu veux centrer verticalement aussi) */
+    min-height: 100vh; /* Hauteur totale de la fenêtre */
+    margin: 0;
+    width: 100%;
+    font-family: 'Roboto-Black';
+    padding: 2rem 0;
+}
+
+.profile-header {
+  font-size: 2rem; 
+  width: 322px;    
+}
+
+.profile-header img {
+  display: inline-block; /* pour que vertical-align s’applique */
+  vertical-align: bottom;/* aligne le bas de l’image sur le bas de la ligne */
+  margin: 0 .5rem;       /* espace autour */
+  width: 54px;
+  height: 118px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.profile-pseudo {
+  font-weight: bold;
+}
+
+.profile-avatar {
+  width: 54px;
+  height: 118px;
+  border-radius: 4px;
+  object-fit: cover;         /* pour que l’image ne se déforme pas */
+}
+
+.profile-avatar.default {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+
+h2 {
+    color: #8e8b87;
+    font-family: 'Roboto-Thin';
+    font-size: 1rem;
+    width: 322px;
+    margin: -10px;
+}
+
+h3 {
+    color: #000000;
+    font-family: 'Roboto-Thin';
+}
+
+.progress-bar {
+  width: 322px;      /* ou ce que vous voulez */
+  height: 10px;
+  background: #e4ded7;
+  border-radius: 5px;
+  overflow: hidden;
+  --pct: 0%;
+}
+
+.fill {
+  width: var(--pct);  
+  height: 100%;
+  background: #8e8b87;
+  transition: width 0.3s ease;
+}
+
+#button1 {
+    background-color: #000000;
+    font-family: 'Roboto-thin';
+    color: #F7F1EA;
+    border: #000000;
+    border-style: solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    width: 322px;
+    height: 30px;
+    margin-top: 20px;
+}
+
+#button1 a {
+    text-decoration: none;
+    font-family: 'Roboto-thin';
+    color: #F7F1EA;
+    font-family: 'Roboto-thin';
+}
+
+#button2 {
+    background-color: #F7F1EA;
+    font-family: 'Roboto-thin';
+    border: 1px solid #E4DED7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    width: 322px;
+    height: 32px;
+}
+
+#button2 a {
+    text-decoration: none;
+    color: #8e8b87;
+}
+
+h4 {
+    font-family: 'Roboto-Thin';
+    width: 322px;
+}
+
+#form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0,05px; 
+    align-items: center;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #E4DED7;
+    border-radius: 20px;
+    background-color: #F7F1EA;
+    font-family: 'Roboto-Thin';
+    width: 322px;
+    height: 30px;
+}
+
+.file-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 322px;
+    height: 2px;
+    background-color: #F7F1EA;
+    border: 1px solid #E4DED7;
+    border-radius: 20px;
+    font-family: 'Roboto-Thin';
+    color: #8e8b87;
+    text-align: center;
+    cursor: pointer;
+}
+
+.file-upload input[type="file"] {
+    display: none;
+}
+
+.button4 {
+    background-color: #000000;
+    font-family: 'Roboto-thin';
+    color: #F7F1EA;
+    border: #000000;
+    border-style: solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    width: 322px;
+    height: 30px;
+    top: 696px;
+    left: 25px;
+    margin-bottom: 10px;
+}

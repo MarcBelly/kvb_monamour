@@ -13,7 +13,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center; /* Centre horizontalement */
-    justify-content: center; /* Centre verticalement (si tu veux centrer verticalement aussi) */
+    justify-content: center; /* Centre verticalement */
     min-height: 100vh; /* Hauteur totale de la fenêtre */
     margin: 0;
     width: 100%;
@@ -45,7 +45,9 @@ input {
 }
 
 .file-upload {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px;
     width: 322px;
     height: 32px;
@@ -53,7 +55,7 @@ input {
     border: 1px solid #E4DED7;
     border-radius: 20px;
     font-family: 'Roboto-Thin';
-    color: #333;
+    color: #8e8b87;
     text-align: center;
     cursor: pointer;
 }
@@ -93,7 +95,7 @@ input {
 
 #button2 a {
     text-decoration: none;
-    color: inherit;
+    color: #8e8b87;
 }
 
 #button3 {
@@ -111,7 +113,7 @@ input {
 
 #button3 a {
     text-decoration: none;
-    color: inherit;
+    color: #8e8b87;
 }
 
 #buttons {
