@@ -37,18 +37,22 @@ def get_all_users(database='kvb_monamour', table='users'):
         db.close()
         return None
 
-#def add_new_user(db, curseur, text_prenom, text_nom, text_sexe, text_pseudo):
-
-    #insert_query = "INSERT INTO users (Pseudo, Nom, Email, Pseudo) VALUES (%s, %s, %s, %s)"
-        #values = (text_prenom, text_nom, text_sexe, text_pseudo)
-        #curseur.execute(insert_query, values)
-        #db.commit()
-        #curseur.close()
-        #db.close()
-        #return True
-    
-   #except mysql.Error:
-        #db.rollback()
-        #curseur.close()
-        #db.close()
-        #return False
+def delete_user_by_id(user_id: int, table='users', database='kvb_monamour') -> bool:
+    """
+    Supprime l'utilisateur d'id `user_id` dans la base et la table spécifiées.
+    Retourne True si un enregistrement a été supprimé, False sinon.
+    """
+    db = mydb_connection()
+    curseur = db.cursor()
+    try:
+        curseur.execute(f"USE {database}")
+        curseur.execute(f"DELETE FROM {table} WHERE id = %s", (user_id,))
+        db.commit()
+        return curseur.rowcount > 0
+    except mysql.connector.Error as e:
+        print(f"Erreur lors de la suppression de l'utilisateur {user_id}: {e}")
+        db.rollback()
+        return False
+    finally:
+        curseur.close()
+        db.close()

@@ -2,19 +2,57 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        <meta name="viewport" content="wiwidth=device-width, initial-scale=1.O" />
         <title>Calcul KVB</title>
+        <link rel="stylesheet" href="/static/home.css">
     </head>
     <body>
-        <main class="container">
-            <h1>Calcul du Coefficient KVB</h1>
 
+        <div class="header">
+            <div class="kvb">
+                <div id="icon-text">
+                    <img src="../static/icons/icons8-heart-24.png" alt="coeur">
+                    <p>KvbMonAmour</p>
+                </div>
+            </div>
+            <div class="comeback">
+                <div class="buttonback">
+                    <a href="{{ url_for('auth.profil') }}">
+                        {% if user.image_path %}
+                        <img
+                            src="{{ url_for('static', filename=user.image_path) }}"
+                            alt="Photo de profil"
+                            class="profile-avatar"
+                            width="28px"
+                            height="28px"
+                            style="border-radius: 100%"
+                        />
+                        {% else %}
+                        <img
+                            src="{{ url_for('static', filename='uploads/pic-no-pic.png') }}"
+                            alt="Photo de profil par défaut"
+                            class="profile-avatar default"
+                            width="28px"
+                            height="28px"
+                            style="border-radius: 100%"
+                        />
+                        {% endif %} 
+                         {{ user.pseudo }}
+                    </a>
+                </div>
+                <div id="button3">
+                    <a href="{{ url_for('info') }}">?</a>
+                </div>
+            </div>
+        </div>
+
+        <main class="container">
             <form method="POST">
-                <label>Type de train :</label><br>
-                <div>
+                <label><h5>Indice de composition :</h5></label><br>
+                <div class="toggle-group">
                     <input type="radio" id="ma100" name="type_train" value="MA100" required
                             {{ 'checked' if type_train == 'MA100' else '' }}>
-                    <label for="ma100">MA100/90/80</label>
+                    <label for="ma100">MA100</label>
 
                     <input type="radio" id="me100" name="type_train" value="ME100" required
                             {{ 'checked' if type_train == 'ME100' else '' }}>
@@ -22,30 +60,42 @@
         
                     <input type="radio" id="me120" name="type_train" value="ME120" required
                             {{ 'checked' if type_train == 'ME120' else '' }}>
-                    <label for="me120">ME120</label><br><br>
+                    <label for="me120">ME120</label>
                 </div>
 
-                <label for="masse_totale">Masse totale (t) :</label>
-                <input type="number" step="1" name="masse_totale" required
-                    value="{{ masse_totale or '' }}"><br><br>
+                <div class="input-group">
+                    <label for="masse_totale"><h5>Masse totale (t) :</h5></label>
+                    <input type="number" step="1" name="masse_totale" required
+                    value="{{ masse_totale or '' }}">
+                </div>
 
-                <label for="masse_freinee">Masse freinée (t) :</label>
-                <input type="number" step="1" name="masse_freinee" required
-                    value="{{ masse_freinee or '' }}"><br><br>
-
-                <button type="submit">Calculer</button>
+                <div class="input-group">
+                    <label for="masse_freinee"><h5></h>Masse freinée (t) :</h5></label>
+                    <input type="number" step="1" name="masse_freinee" required
+                    value="{{ masse_freinee or '' }}">
+                </div>
+                {% if not result %}
+                    <div class="calcul">
+                        <h5>Coefficient :</h5> 
+                        <button type="submit">Go -></button>
+                    </div>
+                {% endif %}
             </form>
 
             {% if result %}
-                <h2>Résultat</h2>
-                <p>Coefficient KVB : {{ result }}</p>
+                <div class="result-calcul">
+                    <h5>Coefficient :</h5>
+                    <div class="value">{{ result }}</div>
+                </div>
             {% endif %}
 
             {% if warning %}
                 <p style="color:red;">{{ warning }}</p>
             {% endif %}
 
-            <p><a href="{{ url_for('auth.profil') }}">Retour Profil</a></p>
+            <div id="button6">
+                <a href="{{ url_for('auth.profil') }}">Retour Profil</a>
+            </div>
         </main>
     </body>
 </html>

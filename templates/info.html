@@ -15,9 +15,16 @@
     <div id="text">
         <p>KvbMonAmour est un générateur de coefficient kvb, développé avec empathie par Marc et David - <em>jusqu'à la victoire.</em></p>
     </div>
-    <div id="button2">
-        <a href="{{ url_for('auth.login') }}">Retour page d'accueil</a>
-    </div>
+
+    {% if session.get('user_id') %}
+      <div id="button2">
+        <a href="{{ url_for('index') }}">Retourner au calcul du coefficient KVB</a>
+      </div>
+    {% else %}
+        <div id="button2">
+            <a href="{{ url_for('auth.login') }}">Retour page d'accueil</a>
+        </div>
+    {% endif %}
 </body>
 
 </html>

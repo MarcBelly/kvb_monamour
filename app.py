@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from kvb_calcul import calculer_kvb_ma100, calculer_kvb_me100, calculer_kvb_me120
 from auth.routes import auth, calculer_rang_et_progression
-from database.db_connection import mydb_connection, get_or_create_table
+from database.db_connection import mydb_connection, get_or_create_table, delete_user_by_id
 import os
 
 app = Flask(__name__)
@@ -26,6 +26,15 @@ def index():
 
     if "user_id" not in session:
         return redirect(url_for("auth.login"))
+    
+    db_cursor = db.cursor(dictionary=True)
+    db_cursor.execute(
+        "SELECT pseudo, image_path FROM users WHERE id = %s",
+        (session["user_id"],)
+    )
+
+    user = db_cursor.fetchone()
+    db_cursor.close()
 
     result = warning = type_train = masse_totale = masse_freinee = None
 
@@ -57,7 +66,7 @@ def index():
         except ValueError:
             warning = "Veuillez entrer des valeurs numériques valides."
 
-    return render_template("home.html", result=result, warning=warning,
+    return render_template("home.html", user=user, result=result, warning=warning,
                            type_train=type_train, masse_totale=masse_totale,
                            masse_freinee=masse_freinee)
 
@@ -106,6 +115,27 @@ def admin():
         })
 
     return render_template("admin.html", users=users, progress_ma100=prog_ma100, progress_me100=prog_me100, progress_me120=prog_me120)
+
+@app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
+def admin_delete_user(user_id):
+    # 1) Vérification admin
+    if not session.get("is_admin"):
+        return "Accès interdit", 403
+
+    # 2) Empêcher l’admin de se supprimer lui-même (optionnel mais recommandé)
+    if user_id == session.get("user_id"):
+        flash("Vous ne pouvez pas vous supprimer vous-même.", "warning")
+        return redirect(url_for("admin"))
+
+    # 3) Appel à la fonction de suppression en base
+    success = delete_user_by_id(user_id)
+    if success:
+        flash("Utilisateur supprimé avec succès.", "success")
+    else:
+        flash("Erreur lors de la suppression.", "danger")
+
+    # 4) Retour à la liste
+    return redirect(url_for("admin"))
 
 @app.route('/info')
 def info():

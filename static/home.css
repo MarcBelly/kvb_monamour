@@ -1,0 +1,231 @@
+@font-face {
+    font-family: 'Roboto-Black';
+    src: url(../static/font/static/Roboto-Black.ttf);
+}
+
+@font-face {
+    font-family: 'Roboto-Thin';
+    src: url(../static/font/static/Roboto-Thin.ttf);
+}
+
+body {
+    background-color: #F7F1EA;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre horizontalement */
+    justify-content: center; /* Centre verticalement (si tu veux centrer verticalement aussi) */
+    min-height: 90vh; /* Hauteur totale de la fenêtre */
+    margin: 0;
+    width: 100%;
+    font-family: 'Roboto-Black';
+    padding: 2rem 0;
+}
+
+/* "header" */
+
+#icon-text {
+    display: flex;
+    align-items: center;
+}
+
+.buttonback {
+    background-color: #F7F1EA;
+    font-family: 'Roboto-thin';
+    border: 1px solid #E4DED7;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    height: 32px;
+    padding: 2px;
+}
+
+.buttonback a {
+    text-decoration: none;
+    color: #8e8b87;
+    display: flex;
+    align-items: center;
+    gap: 2px
+}
+
+#button3 {
+    background-color: #F7F1EA;
+    font-family: 'Roboto-thin';
+    border: 1px solid #E4DED7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 100%;
+}
+
+#button3 a {
+    text-decoration: none;
+    color: #8e8b87;
+}
+
+.comeback {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 322px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+#button6 {
+    background-color: #F7F1EA;
+    font-family: 'Roboto-thin';
+    border: 1px solid #E4DED7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    width: 322px;
+    height: 25px;
+    margin: 10px;
+}
+
+#button6 a {
+    text-decoration: none;
+    color: #8e8b87;
+}
+
+h5 {
+    font-family: 'Roboto-Thin';
+    color: #A29C96;
+
+}
+
+/* FORM boutons */
+
+/* 1. Cache les inputs natifs */
+/* .toggle-group input[type="radio"] {
+  display: none;
+} */
+
+/* 2. Style de base des labels (les « pills » non-cochés) */
+.toggle-group label {
+  flex: 1;                                /* même largeur pour chaque bouton */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;                        /* hauteur du bouton */
+  border: 1px solid #F7F1EA;              /* bordure gris clair */
+  border-radius: 999px;                   /* pill shape */
+  background-color: #F7F1EA;              /* même que le background */
+  color: #8e8b87;                         /* texte gris */
+  font-family: 'Roboto-Thin';
+  cursor: pointer;
+  transition: background-color .2s, color .2s, border-color .2s;
+}
+
+/* 3. Quand la radio est cochée, on cible son label juste après (+) */
+.toggle-group input[type="radio"]:checked + label {
+  background-color: #000;                 /* fond noir */
+  color: #fff;                            /* texte blanc */
+  border-color: #000;                     /* bordure noire */
+}
+
+.toggle-group input[type="radio"] {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px,1px,1px,1px);
+  white-space: nowrap;
+}
+
+
+/* 4. Disposition horizontale et espacement */
+.toggle-group {
+  display: flex;
+  gap: 8px;                               /* espace entre les pills */
+  margin-top: -25px;                         /* espacement vertical */
+}
+
+/* ─── Champ de saisie ───────────────────────────────────── */
+.input-group {
+  background-color: #F7F1EA;            /* blanc */
+  border: 1px solid #F7F1EA;         /* gris clair */
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 1px;
+}
+
+.input-group h5 {
+  font-size: 0.75rem;                /* 12px */
+  color: #8E8B87;                    /* gris doux */
+  margin-bottom: 1px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;                   /* 16px */
+  border: 1px solid #F7F1EA;
+  border-radius: 8px;
+  background-color: #F7F1EA;         /* fond légèrement teinté si tu veux */
+  font-family: 'Roboto-Thin', sans-serif;
+}
+
+/* ─── Bouton Go / Zone de calcul ───────────────────────── */
+.calcul {
+  background-color: #EAE3DB;         /* couleur de fond du bloc */
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.calcul h5 {
+  font-size: 0.875rem;               /* 14px */
+  color: #8E8B87;
+  margin: 0;
+}
+
+.calcul button {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;                 /* 24px, ou ajuste */
+  font-weight: 700;
+  font-family: 'Roboto-Black', sans-serif;
+  color: #8E8B87;                    /* flèche gris doux */
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.calcul button:hover {
+  color: #000;
+}
+
+/* ─── Affichage du résultat ─────────────────────────────── */
+.result-calcul {
+  background-color: #E8E1D6;         /* même fond que le bloc Go */
+  border-radius: 8px;
+  text-align: center;
+  padding: 32px 16px;                /* plus de padding vertical */
+}
+
+.result-calcul h5 {
+  font-size: 0.875rem;
+  color: #8E8B87;
+  margin-bottom: 16px;
+}
+
+.result-calcul .value {
+  font-size: 3rem;                   /* 48px */
+  font-weight: 700;
+  color: #000;
+  line-height: 1;
+}
+
+
