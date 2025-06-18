@@ -70,13 +70,15 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="masse_freinee"><h5></h>Masse freinée (t) :</h5></label>
+                    <label for="masse_freinee"><h5>Masse freinée (t) :</h5></label>
                     <input type="number" step="1" name="masse_freinee" required
                     value="{{ masse_freinee or '' }}">
                 </div>
                 {% if not result %}
                     <div class="calcul">
-                        <h5>Coefficient :</h5> 
+                        <div class="coef">
+                            <h5>Coefficient :</h5>
+                        </div> 
                         <button type="submit">Go -></button>
                     </div>
                 {% endif %}
@@ -84,8 +86,11 @@
 
             {% if result %}
                 <div class="result-calcul">
-                    <h5>Coefficient :</h5>
+                        <h5>Coefficient :</h5>
                     <div class="value">{{ result }}</div>
+                    <div id="button1">
+                        <a href="{{ url_for('index') }}" class="btn">Rafraîchir</a>
+                    </div>
                 </div>
             {% endif %}
 
