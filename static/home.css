@@ -8,6 +8,11 @@
     src: url(../static/font/static/Roboto-Thin.ttf);
 }
 
+@font-face {
+  font-family: 'Roboto_condensed-Regular';
+  src: url(../static/font/static/Roboto_Condensed-Regular.ttf)
+}
+
 body {
     background-color: #F7F1EA;
     display: flex;
@@ -191,9 +196,9 @@ h5 {
 .calcul button {
   background-color: transparent;
   border: none;
-  font-size: 5rem;                
+  font-size: 8rem;                
   font-weight: 400;
-  font-family: 'Roboto-Black', sans-serif;
+  font-family: 'Roboto_condensed-Regular';
   color: #8E8B87;                   
   cursor: pointer;
   transition: color 0.2s;
@@ -223,7 +228,8 @@ h5 {
 }
 
 .result-calcul .value {
-  font-size: 3rem;                  
+  font-family: 'Roboto_condensed-Regular';
+  font-size: 8rem;                  
   font-weight: 700;
   color: #000;
   line-height: 1;

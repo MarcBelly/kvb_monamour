@@ -45,8 +45,8 @@ def index():
         masse_freinee = request.form.get("masse_freinee")
 
         try:
-            masse_totale = float(masse_totale)
-            masse_freinee = float(masse_freinee)
+            masse_totale = int(float(masse_totale))
+            masse_freinee = int(float(masse_freinee))
 
             db_cursor = db.cursor()
 
