@@ -3,3 +3,4 @@ Flask-Login
 Flask-MySQLdb
 Flask-WTF
 Flask-Bcrypt
+gunicorn>=20.1.0
