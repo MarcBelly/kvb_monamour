@@ -15,35 +15,6 @@
                     <p>KvbMonAmour</p>
                 </div>
             </div>
-            <div class="comeback">
-                <div class="buttonback">
-                    <a href="{{ url_for('auth.profil') }}">
-                        {% if user.image_path %}
-                        <img
-                            src="{{ url_for('static', filename=user.image_path) }}"
-                            alt="Photo de profil"
-                            class="profile-avatar"
-                            width="28px"
-                            height="28px"
-                            style="border-radius: 100%"
-                        />
-                        {% else %}
-                        <img
-                            src="{{ url_for('static', filename='uploads/pic-no-pic.png') }}"
-                            alt="Photo de profil par défaut"
-                            class="profile-avatar default"
-                            width="28px"
-                            height="28px"
-                            style="border-radius: 100%"
-                        />
-                        {% endif %} 
-                         {{ user.pseudo }}
-                    </a>
-                </div>
-                <div id="button3">
-                    <a href="{{ url_for('info') }}">?</a>
-                </div>
-            </div>
         </div>
 
         <main class="container">
@@ -97,10 +68,6 @@
             {% if warning %}
                 <p style="color:red;">{{ warning }}</p>
             {% endif %}
-
-            <div id="button6">
-                <a href="{{ url_for('auth.profil') }}">Retour Profil</a>
-            </div>
         </main>
     </body>
 </html>

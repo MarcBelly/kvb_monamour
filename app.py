@@ -1,13 +1,7 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request
 from kvb_calcul import calculer_kvb_ma100, calculer_kvb_me100, calculer_kvb_me120
-import os
 
 app = Flask(__name__)
-app.secret_key = "ma_clé_secrète"
-
-UPLOAD_FOLDER = "static/uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -26,20 +20,14 @@ def index():
             masse_totale = int(float(masse_totale))
             masse_freinee = int(float(masse_freinee))
 
-            db_cursor = db.cursor()
-
             if type_train == "MA100":
                 result = calculer_kvb_ma100(masse_totale, masse_freinee, type_train)
-                db_cursor.execute("UPDATE users SET count_ma100 = count_ma100 + 1 WHERE id = %s", (session["user_id"],))
             elif type_train == "ME100":
                 result = calculer_kvb_me100(masse_totale, masse_freinee, type_train)
-                db_cursor.execute("UPDATE users SET count_me100 = count_me100 + 1 WHERE id = %s", (session["user_id"],))
             elif type_train == "ME120":
                 result = calculer_kvb_me120(masse_totale, masse_freinee, type_train)
-                db_cursor.execute("UPDATE users SET count_me120 = count_me120 + 1 WHERE id = %s", (session["user_id"],))
-            
-            db.commit()
-            db_cursor.close()
+            else:
+                warning = "Invalide!"
 
         except ValueError:
             warning = "Veuillez entrer des valeurs numériques valides."
