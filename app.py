@@ -16,8 +16,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.register_blueprint(auth, url_prefix='/auth')
 
-db = mydb_connection()
-get_or_create_table(db)
+try:
+    db = mydb_connection()
+    get_or_create_table(db)
+    db.close()
+except Exception as e:
+    # On log mais on ne tue pas le boot
+    print("Init DB warning:", e)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():

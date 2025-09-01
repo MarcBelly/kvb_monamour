@@ -1,35 +1,44 @@
 import os
 import mysql.connector
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 def mydb_connection():
     """
-    Priorité à SCALINGO_MYSQL_URL (fournie automatiquement par l’add-on MySQL),
-    sinon on lit les variables d'environnement locales (.env).
+    En prod (Scalingo), on lit SCALINGO_MYSQL_URL.
+    En local, on lit les variables .env.
     """
     scalingo_url = os.getenv("SCALINGO_MYSQL_URL")
     if scalingo_url:
         url = urlparse(scalingo_url)
+        user = unquote(url.username) if url.username else None
+        pwd  = unquote(url.password) if url.password else None
+        db   = url.path.lstrip('/') if url.path else None
         return mysql.connector.connect(
             host=url.hostname,
-            user=url.username,
-            password=url.password,
-            database=url.path.lstrip('/'),
-            port=url.port
+            port=url.port or 3306,
+            user=user,
+            password=pwd,
+            database=db,
+            charset='utf8mb4',
+            autocommit=True
         )
 
-    # Fallback: variables locales (dev)
+    # Fallback local (dev)
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
         user=os.getenv("DB_USER", "kvb_user"),
         password=os.getenv("DB_PASSWORD", ""),
-        database=os.getenv("DB_NAME", "kvb_monamour")
+        database=os.getenv("DB_NAME", "kvb_monamour"),
+        charset='utf8mb4',
+        autocommit=True
     )
 
 def get_or_create_table(db):
+    """
+    En prod, la base existe déjà et on est déjà connecté dessus.
+    On crée juste la table si besoin.
+    """
     curseur = db.cursor()
-    curseur.execute("CREATE DATABASE IF NOT EXISTS kvb_monamour")
-    curseur.execute("USE kvb_monamour")
     curseur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,37 +51,33 @@ def get_or_create_table(db):
             count_ma100 INT DEFAULT 0,
             count_me100 INT DEFAULT 0,
             count_me120 INT DEFAULT 0
-        );
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     """)
-    return curseur
+    curseur.close()
 
-def get_all_users(database='kvb_monamour', table='users'):
+def get_all_users(table='users'):
     db = mydb_connection()
-    curseur = db.cursor()
+    cur = db.cursor()
     try:
-        curseur.execute(f"USE {database}")
-        curseur.execute(f"SELECT * FROM {table}")
-        liste_users = curseur.fetchall()
-        return liste_users
-    except mysql.connector.Error:
-        db.rollback()
-        return None
+        cur.execute(f"SELECT * FROM {table}")
+        rows = cur.fetchall()
+        return rows
     finally:
-        curseur.close()
+        cur.close()
         db.close()
 
-def delete_user_by_id(user_id: int, table='users', database='kvb_monamour') -> bool:
+def delete_user_by_id(user_id: int, table='users') -> bool:
     db = mydb_connection()
-    curseur = db.cursor()
+    cur = db.cursor()
     try:
-        curseur.execute(f"USE {database}")
-        curseur.execute(f"DELETE FROM {table} WHERE id = %s", (user_id,))
+        cur.execute(f"DELETE FROM {table} WHERE id = %s", (user_id,))
         db.commit()
-        return curseur.rowcount > 0
+        return cur.rowcount > 0
     except mysql.connector.Error as e:
-        print(f"Erreur lors de la suppression de l'utilisateur {user_id}: {e}")
+        print(f"Erreur suppression utilisateur {user_id}: {e}")
         db.rollback()
         return False
     finally:
-        curseur.close()
+        cur.close()
         db.close()
+
