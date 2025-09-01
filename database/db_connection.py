@@ -1,8 +1,19 @@
 import os
 import mysql.connector
+from urllib.parse import urlparse
 
 def mydb_connection():
-    db = mysql.connector.connect(
+    scalingo_url = os.getenv("SCALINGO_MYSQL_URL")
+    if scalingo_url:
+        url = urlparse(scalingo_url)
+        return mysql.connector.connect(
+            host=url.hostname,
+            user=url.username,
+            password=url.password,
+            database=url.path.lstrip('/'),
+            port=url.port
+        )
+    return mysql.connector.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
         user=os.getenv("DB_USER", "kvb_user"),
         password=os.getenv("DB_PASSWORD", ""),
