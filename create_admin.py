@@ -3,20 +3,18 @@ from werkzeug.security import generate_password_hash
 import os
 
 def create_admin():
-    # ⚠️ Idéalement, passe le mot de passe via une variable d'environnement en prod
     Pseudo = os.getenv("ADMIN_USERNAME", "admin")
     Nom = os.getenv("ADMIN_NAME", "Admin")
     Email = os.getenv("ADMIN_EMAIL", "admin@example.com")
-    password = os.getenv("ADMIN_PASSWORD", "adminpass")  # change-moi ensuite !
+    password = os.getenv("ADMIN_PASSWORD", "adminpass")
     password_hash = generate_password_hash(password)
     image_path = ""
-    is_admin = True  # sera converti en 1/0 côté MySQL
+    is_admin = True
 
     db = mydb_connection()
     cur = db.cursor()
 
-    # Ne PAS faire de "USE ..." : la base est déjà sélectionnée par la connexion
-    # Crée la table au cas où (optionnel, safe)
+    # pas de USE: la base est déjà sélectionnée par la connexion
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -33,9 +31,7 @@ def create_admin():
     """)
 
     try:
-        # Si Pseudo OU Email existe (UNIQUE), on met à jour le compte
-        cur.execute(
-            """
+        cur.execute("""
             INSERT INTO users (Pseudo, Nom, Email, password_hash, image_path, is_admin)
             VALUES (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
@@ -43,14 +39,12 @@ def create_admin():
               password_hash = VALUES(password_hash),
               image_path = VALUES(image_path),
               is_admin = VALUES(is_admin)
-            """,
-            (Pseudo, Nom, Email, password_hash, image_path, is_admin)
-        )
+        """, (Pseudo, Nom, Email, password_hash, image_path, is_admin))
         db.commit()
-        print(f"✅ Compte admin '{Pseudo}' créé/mis à jour avec succès.")
+        print(f"✅ Compte admin '{Pseudo}' créé/mis à jour.")
     except Exception as e:
-        print("❌ Erreur :", e)
         db.rollback()
+        print("❌ Erreur :", e)
     finally:
         cur.close()
         db.close()
