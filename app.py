@@ -1,11 +1,14 @@
+import os
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from kvb_calcul import calculer_kvb_ma100, calculer_kvb_me100, calculer_kvb_me120
 from auth.routes import auth, calculer_rang_et_progression
 from database.db_connection import mydb_connection, get_or_create_table, delete_user_by_id
-import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "ma_clé_secrète"
+app.secret_key = os.getenv("SECRET_KEY", "change-me")
 
 UPLOAD_FOLDER = "static/uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
