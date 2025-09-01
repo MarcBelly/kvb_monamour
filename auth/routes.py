@@ -1,86 +1,95 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+import os
+from flask import (
+    Blueprint, render_template, request, redirect,
+    url_for, session, current_app, g
+)
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import os
-import mysql.connector
-from database.db_connection import get_all_users
 
+from database.db_connection import mydb_connection
 
+# --- Blueprint ---
 auth = Blueprint("auth", __name__)
 
+# --- DB helpers (connexion unique par requête) ---
 def get_db():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Inesbelly",
-        database="kvb_monamour"
-    )
+    if "db" not in g:
+        g.db = mydb_connection()
+    return g.db
 
+@auth.teardown_app_request
+def _teardown_db(exception=None):
+    db = g.pop("db", None)
+    if db is not None:
+        db.close()
+
+# --- Logique "rangs" ---
 def calculer_rang_et_progression(count, seuils, noms):
-    """
-    - count : le nombre de trains effectués
-    - seuils : liste triée des compteurs à partir desquels on passe au rang suivant
-    - noms : liste des noms de rang (un élément de plus que seuils)
-    """
-    # on compte combien de seuils ont déjà été franchis
+    """Retourne rang courant + prochain seuil, à partir d'un compteur."""
     rang_idx = sum(count >= s for s in seuils)
-    # nom du rang courant
     nom = noms[rang_idx]
-    # prochain seuil (si déjà max, on reste sur le dernier)
     seuil_suivant = seuils[rang_idx] if rang_idx < len(seuils) else seuils[-1]
-    return {
-        "idx": rang_idx,
-        "nom": nom,
-        "count": count,
-        "next": seuil_suivant
-    }
+    return {"idx": rang_idx, "nom": nom, "count": count, "next": seuil_suivant}
 
 
+# --------------------
+#        ROUTES
+# --------------------
 @auth.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        Pseudo = request.form["Pseudo"]
-        Nom = request.form["Nom"]
-        Email = request.form["Email"]
+        Pseudo = request.form["Pseudo"].strip()
+        Nom = request.form["Nom"].strip()
+        Email = request.form["Email"].strip()
         password = request.form["password"]
         image = request.files.get("image")
         image_path = None
 
+        # Upload image (optionnel)
         if image and image.filename:
             filename = secure_filename(image.filename)
-            image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
-            image.save(image_path)
-            image_path = f"uploads/{filename}"
+            upload_dir = current_app.config.get("UPLOAD_FOLDER", "static/uploads")
+            os.makedirs(upload_dir, exist_ok=True)
+            file_path = os.path.join(upload_dir, filename)
+            image.save(file_path)
+            image_path = f"uploads/{filename}" if upload_dir.endswith("uploads") else file_path
 
         db = get_db()
         cursor = db.cursor()
+
+        # Pseudo unique ?
         cursor.execute("SELECT id FROM users WHERE Pseudo = %s", (Pseudo,))
         if cursor.fetchone():
-            return "Ce pseudo existe déjà"
+            cursor.close()
+            return render_template("signup.html", error="Ce pseudo existe déjà.")
 
         hashed_pw = generate_password_hash(password)
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO users (Pseudo, Nom, Email, password_hash, image_path, is_admin)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (Pseudo, Nom, Email, hashed_pw, image_path, 0))
+            """,
+            (Pseudo, Nom, Email, hashed_pw, image_path, 0),
+        )
+        user_id = cursor.lastrowid
         db.commit()
         cursor.close()
-        db.close()
 
-# Connecter l'utilisateur directement après l'inscription
-        session["user_id"] = cursor.lastrowid  # Utilise user_id dans la session
+        # Connexion auto
+        session["user_id"] = user_id
         session["pseudo"] = Pseudo
         session["email"] = Email
-        session["is_admin"] = 0  # L'utilisateur n'est pas admin par défaut
+        session["is_admin"] = 0
 
         return redirect(url_for("auth.login"))
 
     return render_template("signup.html")
 
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        pseudo = request.form["Pseudo"]
+        pseudo = request.form["Pseudo"].strip()
         password = request.form["password"]
 
         db = get_db()
@@ -88,70 +97,72 @@ def login():
         cursor.execute("SELECT * FROM users WHERE Pseudo = %s", (pseudo,))
         user = cursor.fetchone()
         cursor.close()
-        db.close()
 
         if user and check_password_hash(user["password_hash"], password):
             session["user_id"] = user["id"]
             session["pseudo"] = user["Pseudo"]
-            session["is_admin"] = user["is_admin"]
-
+            session["is_admin"] = bool(user["is_admin"])
             return redirect(url_for("admin")) if user["is_admin"] else redirect(url_for("auth.profil"))
-        else:
-            return render_template("login.html", error="Identifiants incorrects.")
+
+        return render_template("login.html", error="Identifiants incorrects.")
 
     return render_template("login.html")
+
 
 @auth.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("auth.login"))
 
-@auth.route('/profil', methods=["GET","POST"])
+
+@auth.route("/profil", methods=["GET", "POST"])
 def profil():
     if "user_id" not in session:
-        return redirect(url_for('auth.login'))
+        return redirect(url_for("auth.login"))
 
     db = get_db()
     cur = db.cursor(dictionary=True)
     cur.execute(
-        "SELECT image_path, count_ma100, count_me100, count_me120 "
-        "FROM users WHERE id=%s",
-        (session["user_id"],)
+        """
+        SELECT image_path, count_ma100, count_me100, count_me120
+        FROM users WHERE id = %s
+        """,
+        (session["user_id"],),
     )
     user = cur.fetchone()
-    cur.close(); db.close()
+    cur.close()
 
     if not user:
         return "Utilisateur non trouvé", 404
 
-    # récupère tes compteurs (ou 0)
-    c_ma100 = user["count_ma100"] or 0
-    c_me100 = user["count_me100"] or 0
-    c_me120 = user["count_me120"] or 0
+    # Compteurs (par défaut 0)
+    c_ma100 = user.get("count_ma100") or 0
+    c_me100 = user.get("count_me100") or 0
+    c_me120 = user.get("count_me120") or 0
 
-    #  ──> ajuste ces listes de seuils et de noms comme tu veux :
+    # Seuils / Noms (à ajuster si besoin)
     seuils_ma100 = [100, 200, 300]
-    noms_ma100   = [
+    noms_ma100 = [
         "Apprenti du MA100",
         "Fonctionnaire du MA100",
         "Administrateur du MA100",
-        "Expert du MA100"
+        "Expert du MA100",
     ]
 
     seuils_me100 = [100, 200, 300]
-    noms_me100   = [
+    noms_me100 = [
         "Apprenti du ME100",
         "Grand bourgeois du ME100",
         "Patron du ME100",
-        "Baron du ME100"
+        "Baron du ME100",
     ]
 
     seuils_me120 = [100, 200, 300]
-    noms_me120   = [
+    noms_me120 = [
         "Hostile du ME120",
         "Mécanicien du ME120",
         "Conducteur du ME120",
-        "Chef de meute ME120"
+        "Chef de meute ME120",
     ]
 
     prog_ma100 = calculer_rang_et_progression(c_ma100, seuils_ma100, noms_ma100)
@@ -164,8 +175,9 @@ def profil():
         progress_ma100=prog_ma100,
         progress_me100=prog_me100,
         progress_me120=prog_me120,
-        image_path=user.get("image_path")
+        image_path=user.get("image_path"),
     )
+
 
 @auth.route("/upload_profile_picture", methods=["POST"])
 def upload_profile_picture():
@@ -175,18 +187,20 @@ def upload_profile_picture():
     image = request.files.get("image")
     if image and image.filename:
         filename = secure_filename(image.filename)
-        image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
-        image.save(image_path)
+        upload_dir = current_app.config.get("UPLOAD_FOLDER", "static/uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, filename)
+        image.save(file_path)
 
-        relative_path = f"uploads/{filename}"
+        # Chemin stocké en base (adapte selon ton app)
+        relative_path = f"uploads/{filename}" if upload_dir.endswith("uploads") else file_path
 
         db = get_db()
         cursor = db.cursor()
         cursor.execute("UPDATE users SET image_path = %s WHERE id = %s", (relative_path, session["user_id"]))
         db.commit()
         cursor.close()
-        db.close()
 
-        session["image_path"] = relative_path  # Pour stocker temporairement
+        session["image_path"] = relative_path
 
     return redirect(url_for("auth.profil"))
