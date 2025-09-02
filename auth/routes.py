@@ -104,18 +104,30 @@ def login():
         user = cursor.fetchone()
         cursor.close()
 
-        if user and check_password_hash(user["password_hash"], password):
-            session["user_id"] = user["id"]
-            session["pseudo"] = user["Pseudo"]
-            session["is_admin"] = bool(user["is_admin"])
+        if user:
+            stored_password = user["password_hash"]
 
-            if session["is_admin"]:
-                return redirect(url_for("admin"))
-            return redirect(url_for("auth.profil"))
+            # Si le mot de passe en base semble hashé
+            if stored_password.startswith("pbkdf2:") and check_password_hash(stored_password, password):
+                auth_ok = True
+            else:
+                # Cas où le mot de passe est en clair (ex: admin)
+                auth_ok = stored_password == password
 
+            if auth_ok:
+                session["user_id"] = user["id"]
+                session["pseudo"] = user["Pseudo"]
+                session["is_admin"] = bool(user["is_admin"])
+
+                if session["is_admin"]:
+                    return redirect(url_for("admin"))
+                return redirect(url_for("auth.profil"))
+
+        # Sinon -> erreur
         return render_template("login.html", error="Identifiants incorrects.")
 
     return render_template("login.html")
+
 
 # ---------------------
 # Déconnexion
