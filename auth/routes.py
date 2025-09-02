@@ -5,36 +5,40 @@ from flask import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-
 from database.db_connection import mydb_connection
 
-# --- Blueprint ---
+# Blueprint d'authentification
 auth = Blueprint("auth", __name__)
 
-# --- DB helpers (connexion unique par requête) ---
+# ---------------------
+# Connexion DB par requête
+# ---------------------
 def get_db():
+    """Retourne la connexion DB pour la requête courante"""
     if "db" not in g:
         g.db = mydb_connection()
     return g.db
 
 @auth.teardown_app_request
 def _teardown_db(exception=None):
+    """Ferme proprement la DB après chaque requête"""
     db = g.pop("db", None)
     if db is not None:
         db.close()
 
-# --- Logique "rangs" ---
+# ---------------------
+# Gestion des rangs utilisateurs
+# ---------------------
 def calculer_rang_et_progression(count, seuils, noms):
-    """Retourne rang courant + prochain seuil, à partir d'un compteur."""
+    """Retourne le rang et le prochain seuil à atteindre."""
     rang_idx = sum(count >= s for s in seuils)
     nom = noms[rang_idx]
     seuil_suivant = seuils[rang_idx] if rang_idx < len(seuils) else seuils[-1]
     return {"idx": rang_idx, "nom": nom, "count": count, "next": seuil_suivant}
 
-
-# --------------------
-#        ROUTES
-# --------------------
+# ---------------------
+# Inscription
+# ---------------------
 @auth.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -45,19 +49,19 @@ def signup():
         image = request.files.get("image")
         image_path = None
 
-        # Upload image (optionnel)
+        # Gestion de l'image uploadée
         if image and image.filename:
             filename = secure_filename(image.filename)
             upload_dir = current_app.config.get("UPLOAD_FOLDER", "static/uploads")
             os.makedirs(upload_dir, exist_ok=True)
             file_path = os.path.join(upload_dir, filename)
             image.save(file_path)
-            image_path = f"uploads/{filename}" if upload_dir.endswith("uploads") else file_path
+            image_path = f"uploads/{filename}"
 
         db = get_db()
         cursor = db.cursor()
 
-        # Pseudo unique ?
+        # Vérifier si le pseudo existe déjà
         cursor.execute("SELECT id FROM users WHERE Pseudo = %s", (Pseudo,))
         if cursor.fetchone():
             cursor.close()
@@ -71,21 +75,23 @@ def signup():
             """,
             (Pseudo, Nom, Email, hashed_pw, image_path, 0),
         )
-        user_id = cursor.lastrowid
         db.commit()
+        user_id = cursor.lastrowid
         cursor.close()
 
-        # Connexion auto
+        # Connexion automatique après inscription
         session["user_id"] = user_id
         session["pseudo"] = Pseudo
         session["email"] = Email
         session["is_admin"] = 0
 
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("auth.profil"))
 
     return render_template("signup.html")
 
-
+# ---------------------
+# Connexion
+# ---------------------
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -102,19 +108,26 @@ def login():
             session["user_id"] = user["id"]
             session["pseudo"] = user["Pseudo"]
             session["is_admin"] = bool(user["is_admin"])
-            return redirect(url_for("admin")) if user["is_admin"] else redirect(url_for("auth.profil"))
+
+            if session["is_admin"]:
+                return redirect(url_for("admin"))
+            return redirect(url_for("auth.profil"))
 
         return render_template("login.html", error="Identifiants incorrects.")
 
     return render_template("login.html")
 
-
+# ---------------------
+# Déconnexion
+# ---------------------
 @auth.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("auth.login"))
 
-
+# ---------------------
+# Profil utilisateur
+# ---------------------
 @auth.route("/profil", methods=["GET", "POST"])
 def profil():
     if "user_id" not in session:
@@ -135,35 +148,18 @@ def profil():
     if not user:
         return "Utilisateur non trouvé", 404
 
-    # Compteurs (par défaut 0)
+    # Compteurs utilisateurs
     c_ma100 = user.get("count_ma100") or 0
     c_me100 = user.get("count_me100") or 0
     c_me120 = user.get("count_me120") or 0
 
-    # Seuils / Noms (à ajuster si besoin)
+    # Seuils et noms de rangs
     seuils_ma100 = [100, 200, 300]
-    noms_ma100 = [
-        "Apprenti du MA100",
-        "Fonctionnaire du MA100",
-        "Administrateur du MA100",
-        "Expert du MA100",
-    ]
-
+    noms_ma100 = ["Apprenti du MA100", "Fonctionnaire du MA100", "Administrateur du MA100", "Expert du MA100"]
     seuils_me100 = [100, 200, 300]
-    noms_me100 = [
-        "Apprenti du ME100",
-        "Grand bourgeois du ME100",
-        "Patron du ME100",
-        "Baron du ME100",
-    ]
-
+    noms_me100 = ["Apprenti du ME100", "Grand bourgeois du ME100", "Patron du ME100", "Baron du ME100"]
     seuils_me120 = [100, 200, 300]
-    noms_me120 = [
-        "Hostile du ME120",
-        "Mécanicien du ME120",
-        "Conducteur du ME120",
-        "Chef de meute ME120",
-    ]
+    noms_me120 = ["Hostile du ME120", "Mécanicien du ME120", "Conducteur du ME120", "Chef de meute ME120"]
 
     prog_ma100 = calculer_rang_et_progression(c_ma100, seuils_ma100, noms_ma100)
     prog_me100 = calculer_rang_et_progression(c_me100, seuils_me100, noms_me100)
@@ -178,7 +174,9 @@ def profil():
         image_path=user.get("image_path"),
     )
 
-
+# ---------------------
+# Upload image profil
+# ---------------------
 @auth.route("/upload_profile_picture", methods=["POST"])
 def upload_profile_picture():
     if "user_id" not in session:
@@ -192,9 +190,7 @@ def upload_profile_picture():
         file_path = os.path.join(upload_dir, filename)
         image.save(file_path)
 
-        # Chemin stocké en base (adapte selon ton app)
-        relative_path = f"uploads/{filename}" if upload_dir.endswith("uploads") else file_path
-
+        relative_path = f"uploads/{filename}"
         db = get_db()
         cursor = db.cursor()
         cursor.execute("UPDATE users SET image_path = %s WHERE id = %s", (relative_path, session["user_id"]))
