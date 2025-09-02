@@ -24,7 +24,7 @@ def get_db():
         g.db = mydb_connection()
     return g.db
 
-@app.teardown_app_request
+@app.teardown_request
 def _teardown_db(exception=None):
     db = g.pop("db", None)
     if db is not None:

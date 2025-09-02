@@ -19,7 +19,7 @@ def get_db():
         g.db = mydb_connection()
     return g.db
 
-@auth.teardown_app_request
+@auth.teardown_request
 def _teardown_db(exception=None):
     """Ferme proprement la DB après chaque requête"""
     db = g.pop("db", None)
