@@ -18,12 +18,23 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center; 
-    justify-content: center; 
+    justify-content: flex-start; 
     min-height: 90vh; 
     margin: 0;
     width: 100%;
     font-family: 'Roboto-Black';
     padding: 2rem 0;
+}
+
+.container {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.narrow {
+  width: 322px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 /* "header" */
@@ -35,7 +46,7 @@ body {
 
 .buttonback {
     background-color: #F7F1EA;
-    font-family: 'Roboto-thin';
+    font-family: 'Roboto-Thin';
     border: 1px solid #E4DED7;
     display: inline-flex;
     justify-content: center;
@@ -55,7 +66,7 @@ body {
 
 #button3 {
     background-color: #F7F1EA;
-    font-family: 'Roboto-thin';
+    font-family: 'Roboto-Thin';
     border: 1px solid #E4DED7;
     display: flex;
     justify-content: center;
@@ -87,7 +98,7 @@ body {
 
 #button6 {
     background-color: #F7F1EA;
-    font-family: 'Roboto-thin';
+    font-family: 'Roboto-Thin';
     border: 1px solid #E4DED7;
     display: flex;
     justify-content: center;
@@ -95,7 +106,7 @@ body {
     border-radius: 20px;
     width: 322px;
     height: 25px;
-    margin: 10px;
+    margin: 10px auto;
 }
 
 #button6 a {
@@ -153,7 +164,7 @@ h5 {
   background-color: #F7F1EA;        
   border: 1px solid #F7F1EA;         
   border-radius: 8px;
-  padding: 16px, 0px, 16px, 16px;
+  padding: 16px 0px 16px 16px;
   margin-bottom: 1px;
 }
 
@@ -237,7 +248,7 @@ h5 {
 
 #button1 {
     background-color: #000000;
-    font-family: 'Roboto-thin';
+    font-family: 'Roboto-Thin';
     color: #F7F1EA;
     border: #000000;
     border-style: solid;
@@ -252,7 +263,7 @@ h5 {
 
 #button1 a {
     text-decoration: none;
-    font-family: 'Roboto-thin';
+    font-family: 'Roboto-Thin';
     color: #F7F1EA;
 }
 
