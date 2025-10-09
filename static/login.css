@@ -33,6 +33,11 @@ body {
     margin-top: 15px;
 }
 
+.octobre {
+    width: 25px;
+    height: auto;
+}
+
 .button1 {
     background-color: #000000;
     font-family: 'Roboto-thin';
