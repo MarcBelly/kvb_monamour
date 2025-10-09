@@ -49,7 +49,9 @@
 
         <main class="container">
             <form method="POST">
-                <label><h5>Indice de composition :</h5></label><br>
+                <div class="indice">
+                    <label><h5>Indice de composition :</h5></label><br>
+                </div>
                 <div class="toggle-group">
                     <input type="radio" id="ma100" name="type_train" value="MA100" required
                             {{ 'checked' if type_train == 'MA100' else '' }}>

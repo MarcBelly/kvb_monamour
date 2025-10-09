@@ -117,7 +117,10 @@ body {
 h5 {
     font-family: 'Roboto-Thin';
     color: #A29C96;
+}
 
+.indice h5 {
+  margin-left: 16px;
 }
 
 /* FORM boutons */
