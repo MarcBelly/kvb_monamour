@@ -19,26 +19,15 @@
             <div class="comeback">
                 <div class="buttonback">
                     <a href="{{ url_for('auth.profil') }}">
-                        {% if user.image_path %}
                         <img
-                            src="{{ url_for('static', filename=user.image_path) }}"
+                            src="{{ url_for('auth.avatar', user_id=session['user_id']) }}"
                             alt="Photo de profil"
                             class="profile-avatar"
                             width="28px"
                             height="28px"
                             style="border-radius: 100%"
                         />
-                        {% else %}
-                        <img
-                            src="{{ url_for('static', filename='uploads/pic-no-pic.png') }}"
-                            alt="Photo de profil par défaut"
-                            class="profile-avatar default"
-                            width="28px"
-                            height="28px"
-                            style="border-radius: 100%"
-                        />
-                        {% endif %} 
-                         {{ user.pseudo }}
+                        {{ user.pseudo }}
                     </a>
                 </div>
                 <div id="button3">

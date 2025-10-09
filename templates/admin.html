@@ -22,9 +22,14 @@
     <td>{{ user.rang_me120 }} ({{ user.pct_me120 }}%)</td>
    
     <td>
-      {% if user.image_path %}
-      <img src="{{ url_for('static', filename=user.image_path) }}" width="50" />
-      {% else %} - {% endif %}
+      <img
+        src="{{ url_for('auth.avatar', user_id=u.id) }}"
+        alt="Photo de profil"
+        class="profile-avatar"
+        width="54"
+        height="118"
+        style="border-radius: 4px"
+      />
     </td>
     <td>
       <form
