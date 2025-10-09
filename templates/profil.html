@@ -10,25 +10,14 @@
   <body>
     <h1 class="profile-header">
       <span class="profile-pseudo">{{ session['pseudo'] }}, </span>
-      {% if user.image_path %}
       <img
-        src="{{ url_for('static', filename=user.image_path) }}"
+        src="{{ url_for('auth.avatar', user_id=session['user_id']) }}"
         alt="Photo de profil"
         class="profile-avatar"
-        width="54px"
-        height="118px"
+        width="54"
+        height="118"
         style="border-radius: 4px"
-      />
-      {% else %}
-      <img
-        src="{{ url_for('static', filename='uploads/pic-no-pic.png') }}"
-        alt="Photo de profil par défaut"
-        class="profile-avatar default"
-        width="54px"
-        height="118px"
-        style="border-radius: 4px"
-      />
-      {% endif %} partisan du moindre effort — <em>de traction.</em>
+      /> partisan du moindre effort — <em>de traction.</em>
     </h1>
 
     <h2>Les masses sont les véritables héros :</h2>

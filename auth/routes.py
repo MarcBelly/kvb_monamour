@@ -1,8 +1,9 @@
 import os
 from flask import (
     Blueprint, render_template, request, redirect,
-    url_for, session, current_app, g
+    url_for, session, current_app, g, send_file
 )
+from io import BytesIO
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from database.db_connection import mydb_connection
@@ -49,14 +50,16 @@ def signup():
         image = request.files.get("image")
         image_path = None
 
-        # Gestion de l'image uploadée
+        # Gestion de l'image uploadée -> stockée en DB (BLOB)
+        avatar_blob = None
+        avatar_mime = None
+        image_path = None  # on n'utilise plus le disque pour les avatars
+
+        image = request.files.get("image")
         if image and image.filename:
-            filename = secure_filename(image.filename)
-            upload_dir = current_app.config.get("UPLOAD_FOLDER", "static/uploads")
-            os.makedirs(upload_dir, exist_ok=True)
-            file_path = os.path.join(upload_dir, filename)
-            image.save(file_path)
-            image_path = f"uploads/{filename}"
+            avatar_blob = image.read()
+            avatar_mime = image.mimetype or "image/jpeg"
+
 
         db = get_db()
         cursor = db.cursor()
@@ -70,10 +73,10 @@ def signup():
         hashed_pw = generate_password_hash(password)
         cursor.execute(
             """
-            INSERT INTO users (Pseudo, Nom, Email, password_hash, image_path, is_admin)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO users (Pseudo, Nom, Email, password_hash, image_path, is_admin, avatar_blob, avatar_mime)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (Pseudo, Nom, Email, hashed_pw, image_path, 0),
+            (Pseudo, Nom, Email, hashed_pw, image_path, 0, avatar_blob, avatar_mime),
         )
         db.commit()
         user_id = cursor.lastrowid
@@ -134,6 +137,27 @@ def logout():
     return redirect(url_for("auth.login"))
 
 # ---------------------
+# Avatar binaire depuis la base (add le 09/10)
+# ---------------------
+@auth.route("/avatar/<int:user_id>")
+def avatar(user_id):
+    db = get_db()
+    cur = db.cursor(dictionary=True)
+    cur.execute("SELECT avatar_blob, avatar_mime FROM users WHERE id = %s", (user_id,))
+    row = cur.fetchone()
+    cur.close()
+
+    if row and row.get("avatar_blob"):
+        return send_file(BytesIO(row["avatar_blob"]),
+                         mimetype=row.get("avatar_mime") or "image/jpeg",
+                         as_attachment=False,
+                         download_name=f"avatar_{user_id}.jpg")
+
+    # Fallback: image par défaut versionnée (persistante)
+    return redirect(url_for('static', filename='uploads/pic-no-pic.png'))
+
+
+# ---------------------
 # Profil utilisateur
 # ---------------------
 @auth.route("/profil", methods=["GET", "POST"])
@@ -192,19 +216,17 @@ def upload_profile_picture():
 
     image = request.files.get("image")
     if image and image.filename:
-        filename = secure_filename(image.filename)
-        upload_dir = current_app.config.get("UPLOAD_FOLDER", "static/uploads")
-        os.makedirs(upload_dir, exist_ok=True)
-        file_path = os.path.join(upload_dir, filename)
-        image.save(file_path)
+        avatar_blob = image.read()
+        avatar_mime = image.mimetype or "image/jpeg"
 
-        relative_path = f"uploads/{filename}"
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("UPDATE users SET image_path = %s WHERE id = %s", (relative_path, session["user_id"]))
+        cursor.execute(
+            "UPDATE users SET avatar_blob = %s, avatar_mime = %s, image_path = NULL WHERE id = %s",
+            (avatar_blob, avatar_mime, session["user_id"])
+        )
         db.commit()
         cursor.close()
 
-        session["image_path"] = relative_path
-
     return redirect(url_for("auth.profil"))
+
