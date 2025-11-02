@@ -56,13 +56,13 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="masse_totale"><h5>Masse totale (t) :</h5></label>
+                    <label for="masse_totale"><h5>Masse totale (t) :</h5><br></label>
                     <input type="number" step="1" name="masse_totale" required
                     value="{{ masse_totale or '' }}">
                 </div>
 
                 <div class="input-group">
-                    <label for="masse_freinee"><h5>Masse freinée (t) :</h5></label>
+                    <label for="masse_freinee"><h5>Masse freinée (t) :</h5><br></label>
                     <input type="number" step="1" name="masse_freinee" required
                     value="{{ masse_freinee or '' }}">
                 </div>
@@ -78,18 +78,18 @@
 
             {% if result %}
                 <div class="result-calcul">
-                        <h5>Coefficient :</h5>
-                    <div class="value">{{ result }}</div>
+                    <h5>Coefficient :</h5>
+                    {% if result is string %}
+                        <div class="value warning">{{ result }}</div>
+                    {% else %}
+                        <div class="value">{{ result }}</div>
+                    {% endif %}
                     <div id="button1">
                         <a href="{{ url_for('index') }}" class="btn">Rafraîchir</a>
                     </div>
                 </div>
             {% endif %}
-
-            {% if warning %}
-                <p style="color:red;">{{ warning }}</p>
-            {% endif %}
-
+            
             <div id="button6">
                 <a href="{{ url_for('auth.profil') }}">Retour Profil</a>
             </div>

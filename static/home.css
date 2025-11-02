@@ -167,7 +167,7 @@ h5 {
   background-color: #F7F1EA;        
   border: 1px solid #F7F1EA;         
   border-radius: 8px;
-  padding: 16px 0px 16px 16px;
+  padding: 16px;
   margin-bottom: 1px;
 }
 
@@ -285,3 +285,14 @@ h5 {
   flex-wrap: wrap;
 }
 
+/*
+.result-calcul .value.warning {
+    color: #000;
+    font-family: 'Roboto-Black';
+    font-size: clamp(1.5rem, 5vw, 4rem); 
+    line-height: 1.2;
+    text-align: center;
+    max-width: 90%;
+    word-wrap: break-word;
+    margin: 16px auto;
+} */

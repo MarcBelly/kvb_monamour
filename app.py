@@ -81,7 +81,7 @@ def index():
                 cur.execute("UPDATE users SET count_me120 = count_me120 + 1 WHERE id = %s", (session["user_id"],))
             db.commit()
             cur.close()
-            
+
         except ValueError:
             warning = "Veuillez entrer des valeurs numériques valides."
 
