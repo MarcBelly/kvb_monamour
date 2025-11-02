@@ -14,7 +14,6 @@
                 <div id="icon-text">
                     <img src="../static/icons/icons8-heart-24.png" alt="coeur">
                     <p>KvbMonAmour</p>
-                    <img src="../static/icons/9573115.png" class="octobre" alt="octobre-rose">
                 </div>
             </div>
             <div class="comeback">
@@ -88,7 +87,12 @@
             {% endif %}
 
             {% if warning %}
-                <p style="color:red;">{{ warning }}</p>
+                <div class="result-calcul">
+                    <div class="alert-warning">{{ warning }}</div>
+                    <div id="button1">
+                        <a href="{{ url_for('index') }}" class="btn">Rafraîchir</a>
+                    </div>
+                </div>
             {% endif %}
 
             <div id="button6">
