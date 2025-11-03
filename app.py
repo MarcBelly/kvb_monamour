@@ -60,6 +60,7 @@ def index():
     type_train = None
     masse_totale = None
     masse_freinee = None
+    is_text = False
 
     if request.method == "POST":
         type_train = request.form.get("type_train")
@@ -82,13 +83,22 @@ def index():
             db.commit()
             cur.close()
 
+            try:
+                float(result)  # si convertible en float -> nombre
+                is_text = False
+            except (ValueError, TypeError):
+                is_text = True  # sinon -> texte
+
         except ValueError:
             warning = "Veuillez entrer des valeurs numériques valides."
+            is_text = True
+            result = warning
 
     return render_template(
         "home.html",
         user=user,
         result=result,
+        is_text=is_text,
         warning=warning,
         type_train=type_train,
         masse_totale=masse_totale,

@@ -253,7 +253,7 @@ h5 {
   line-height: 1;
 }
 
-#button1 {
+/* #button1 {
     background-color: #000000;
     font-family: 'Roboto-Thin';
     color: #F7F1EA;
@@ -267,6 +267,20 @@ h5 {
     height: 30px;
     margin-top: 20px;
     margin-left: 14px;
+} */
+
+#button1 {
+    background-color: #000000;
+    font-family: 'Roboto-Thin';
+    color: #F7F1EA;
+    border: #000000 solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    width: 322px;
+    height: 30px;
+    margin: 20px auto 0; /* centré horizontalement */
 }
 
 #button1 a {
@@ -285,7 +299,7 @@ h5 {
   flex-wrap: wrap;
 }
 
-/*
+
 .result-calcul .value.warning {
     color: #000;
     font-family: 'Roboto-Black';
@@ -295,4 +309,4 @@ h5 {
     max-width: 90%;
     word-wrap: break-word;
     margin: 16px auto;
-} */
+} 

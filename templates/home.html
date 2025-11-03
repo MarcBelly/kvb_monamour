@@ -78,10 +78,11 @@
 
             {% if result %}
                 <div class="result-calcul">
-                    <h5>Coefficient :</h5>
-                    {% if result is string %}
+                    {% if is_text %}
+                        <h5 style="color: red; font-weight: bold;">ATTENTION :</h5>
                         <div class="value warning">{{ result }}</div>
                     {% else %}
+                        <h5>Coefficient :</h5>
                         <div class="value">{{ result }}</div>
                     {% endif %}
                     <div id="button1">
